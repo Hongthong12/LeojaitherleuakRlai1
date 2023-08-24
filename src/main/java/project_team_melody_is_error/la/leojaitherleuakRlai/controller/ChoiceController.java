@@ -16,7 +16,10 @@ public class ChoiceController {
 
     public ChoiceController(ChoiceService choiceService) {
         this.choiceService = choiceService;
+
     }
+//_______________________________________________________GETALL___________________________________________________
+
 
     @GetMapping("/all")
     public List<ChoiceModel> findAllChoices() {
@@ -26,12 +29,18 @@ public class ChoiceController {
 //    public List<Choice> getAllChoices() {
 //        return choiceService.getAllChoices();
 //    }
+//______________________________________________________________________________________________________________________
+
+
+//__________________________________________________GETID_______________________________________________________________
 
     @GetMapping("/{id}")
     public ChoiceModel getBychoiceId(@PathVariable Integer id){
         return this.choiceService.findById(Long.valueOf(id));
     }
 
+
+//______________________________________________________________________________________________________________________
 
 
 

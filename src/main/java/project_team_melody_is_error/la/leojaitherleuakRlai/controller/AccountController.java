@@ -1,8 +1,9 @@
 package project_team_melody_is_error.la.leojaitherleuakRlai.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 import project_team_melody_is_error.la.leojaitherleuakRlai.entity.Account;
 import project_team_melody_is_error.la.leojaitherleuakRlai.model.AccountModel;
@@ -12,7 +13,7 @@ import project_team_melody_is_error.la.leojaitherleuakRlai.service.AccountServic
 import java.util.List;
 import java.util.Map;
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/api")
 public class AccountController {
     @Autowired
     private AccountService accountService;
@@ -24,42 +25,45 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping
-    public List<AccountModel> getAllAccounts() {
-        return accountService.getAllAccounts();
+
+//_____________________________________________create ACCOUNT__________________________________________________________
+
+    @PostMapping("/login/gmail")
+    public ResponseEntity<?> loginWithGmail(@RequestBody AccountModel accountModel) {
+        return accountService.getGmailEntity(accountModel);
     }
 
-    @GetMapping("/{id}")
-    public AccountModel getAccountById(@PathVariable Long id) {
-        return accountService.getAccountById(id);
+//______________________________________________________________________________________________________________________
+
+
+//_____________________________________________GET ALL ACCOUNT__________________________________________________________
+
+    @GetMapping("/all/account")
+    public ResponseEntity<List<AccountModel>> findAllAccounts() {
+        List<AccountModel> accounts = accountService.findAllAccount();
+        return ResponseEntity.ok().body(accounts);
     }
 
-    @GetMapping("/email/{email}")
-    public List<AccountModel> getAccountsByEmail(@PathVariable String email) {
-        return accountService.getAccountsByEmail(email);
+//______________________________________________________________________________________________________________________
+
+
+//_____________________________________________GET ONE ID ACCOUNT__________________________________________________________
+
+    @GetMapping("/all/account/{id}")
+    public ResponseEntity<AccountModel> findAccountById(@PathVariable Long id) {
+        AccountModel account = accountService.findAccountById(id);
+        return ResponseEntity.ok().body(account);
     }
 
-
-
-    @PostMapping("/accounts")
-    public ResponseEntity<String> addAccount(@RequestBody AccountModel account) {
-        String result = accountService.addAccount(account);
-        return ResponseEntity.ok(result);
-    }
+//______________________________________________________________________________________________________________________
 
 
 
-    @DeleteMapping("/{id}")
-    public void removeAccount(@PathVariable Long id) {
-        AccountModel account = accountService.getAccountById(id);
-        if (account != null) {
-            accountService.removeAccount(account);
-        }
-    }
-
-    // เพิ่มเมทอดอื่น ๆ เช่นอัพเดทข้อมูลบัญชี ตามความต้องการของคุณ
 
 }
+
+
+
 
 
 

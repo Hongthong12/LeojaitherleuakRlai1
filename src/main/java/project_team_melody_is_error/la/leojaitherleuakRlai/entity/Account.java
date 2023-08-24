@@ -32,12 +32,14 @@ public class Account {
     private LocalDateTime datetime;
 
 
+    private String imageUrl;
+
+
 
     @OneToMany(mappedBy = "account")
     @JsonIgnore
     private List<History> histories;
-
-
+    private LocalDateTime createdDate;
 
 
 

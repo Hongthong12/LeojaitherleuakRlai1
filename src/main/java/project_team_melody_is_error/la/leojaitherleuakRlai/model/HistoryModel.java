@@ -1,101 +1,89 @@
 package project_team_melody_is_error.la.leojaitherleuakRlai.model;
 
 import lombok.Data;
+import project_team_melody_is_error.la.leojaitherleuakRlai.entity.Account;
+import project_team_melody_is_error.la.leojaitherleuakRlai.entity.Result;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class HistoryModel {
-    private Long id;
     private LocalDateTime dateTime;
-    private ArrayList<Integer> likechoices;
-    private ArrayList<Integer> dischoice;
-    private String account;
-    private String result;
-    private Object disChoiceIds;
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ArrayList<Integer> getlikechoices() {
-        return likechoices;
-    }
-
-    public void setLikeChoices(List<Integer> likeChoices) {
-        this.likechoices = (ArrayList<Integer>) likeChoices;
-    }
-
-    public List<Integer> getDisChoice() {
-        return dischoice;
-    }
-
-    public void setDisChoice(List<Integer> disChoice) {
-        this.dischoice = (ArrayList<Integer>) disChoice;
-    }
-
+    private Long accountId;
+    private Long resultId;
+    private List<Long> likeChoices;
+    private List<Long> disChoices;
+    private boolean isDeleted;
+    private Account account;
+    private Result result;
 
     public LocalDateTime getDateTime() {
+
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = LocalDateTime.parse(dateTime);
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
-    public String getAccount() {
+    public Long getAccountId() {
+
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
+    public Long getResultId() {
+        return resultId;
+    }
+
+    public void setResultId(Long resultId) {
+        this.resultId = resultId;
+    }
+
+
+
+    public void setLikeChoices(List<Long> likeChoices) {
+        this.likeChoices = likeChoices;
+    }
+
+    public List<Long> getLikeChoices() {
+
+        return likeChoices;
+    }
+
+    public List<Long> getDisChoices() {
+
+        return disChoices;
+    }
+
+    public void setDisChoices(List<Long> disChoices) {
+        this.disChoices = disChoices;
+    }
+
+    public boolean isDeleted() {
+
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public Account getAccount() {
+
         return account;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
-    }
+    public Result getResult() {
 
-    public String getResult() {
         return result;
     }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public int getLikeChoices() {
-        return this.getLikeChoices();
-    }
-
-    public void setLikechoices(ArrayList<Integer> savedLikeList) {
-    }
-
-    public void setDischoices(ArrayList<Integer> savedDislikeList) {
-    }
-
-
-
-    public String getAccountId() {
-        return account;
-    }
-
-    public String getResultId() {
-        return result;
-    }
-
-    public Integer getLikeChoiceIds() {
-        return getLikeChoices();
-    }
-
-
-    public Object getDisChoiceIds() {
-        return disChoiceIds;
-    }
-
-    public void setDisChoiceIds(Object disChoiceIds) {
-        this.disChoiceIds = disChoiceIds;
-    }
+//    public List<Integer> getDisChoice() {
+//        return disChoice;
+//    }
 }

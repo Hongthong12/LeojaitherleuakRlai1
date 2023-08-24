@@ -17,19 +17,30 @@ public class ResultController {
         this.resultService = resultService;
     }
 
+    //__________________________________________GET ALL___________________________________________________
+
     @GetMapping("/all")
     public List<ResultModel> findAllResults() {
         return this.resultService.findAllResults();
     }
+
+
+//    __________________________________________________________________________________________________________________
+
+//______________________________________________GET ID______________________________________________________________
 
     @GetMapping("/{id}")
     public ResultModel findResultById(@PathVariable Long id) {
         return this.resultService.findResultById(id);
     }
 
+//    __________________________________________________________________________________________________________________
+
+//_______________________________________DON`t Post_____________________________________________________________________
     @PostMapping("/")
     public ResultModel createResult(@RequestBody ResultModel resultModel) {
         return this.resultService.createResult(resultModel);
     }
 
+//    __________________________________________________________________________________________________________________
 }

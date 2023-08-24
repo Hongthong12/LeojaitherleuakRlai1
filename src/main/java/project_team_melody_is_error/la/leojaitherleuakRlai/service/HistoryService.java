@@ -1,7 +1,7 @@
 package project_team_melody_is_error.la.leojaitherleuakRlai.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import net.minidev.json.JSONArray;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,7 @@ import project_team_melody_is_error.la.leojaitherleuakRlai.repository.ChoiceRepo
 import project_team_melody_is_error.la.leojaitherleuakRlai.repository.HistoryRepository;
 import project_team_melody_is_error.la.leojaitherleuakRlai.repository.ResultRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,117 +40,33 @@ public class HistoryService {
 
     //_______________________________________CreateHistory___________________________________________________________
 
-
-    public History createHistory(Account account, Result result, List<Long> likeChoiceIds, List<Long> disChoiceIds) {
+    public History createHistory(HistoryModel historyModel) throws ResourceNotFoundException {
         History history = new History();
-        history.setAccount((account));
-        history.setResult((result));
+        history.setDateTime(LocalDateTime.now());
+        history.setDeleted(historyModel.isDeleted()); // set isDeleted
 
-        List<Choice> likeChoices = likeChoiceIds.stream()
-                .map(choiceId -> choiceRepository.findById(choiceId)
-                        .orElseThrow(() -> new EntityNotFoundException("Choice not found with id " + choiceId)))
-                .collect(Collectors.toList());
-        List<Choice> disChoices = disChoiceIds.stream()
-                .map(choiceId -> choiceRepository.findById(choiceId)
-                        .orElseThrow(() -> new EntityNotFoundException("Choice not found with id " + choiceId)))
-                .collect(Collectors.toList());
+        // get account by accountId
+        Account account = accountRepository.findById(historyModel.getAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found for this id :: " + historyModel.getAccountId()));
+        history.setAccount(account);
 
+        // get result by resultId
+        Result result = resultRepository.findById(historyModel.getResultId())
+                .orElseThrow(() -> new ResourceNotFoundException("Result not found for this id :: " + historyModel.getResultId()));
+        history.setResult(result);
+
+        // get likeChoices by choiceIds
+        List<Long> likeChoiceIds = historyModel.getLikeChoices();
+        List<Choice> likeChoices = choiceRepository.findAllById(likeChoiceIds);
         history.setLikeChoices(likeChoices);
+
+        // get disChoices by choiceIds
+        List<Long> disChoiceIds = historyModel.getDisChoices();
+        List<Choice> disChoices = choiceRepository.findAllById(disChoiceIds);
         history.setDisChoices(disChoices);
+
         return historyRepository.save(history);
     }
-
-
-//    public History createHistory(History history) {
-//        return historyRepository.save(history);
-//    }
-
-
-//    public ResponseEntity<String> createHistory(HistoryModel history) {
-//        try {
-//            historyRepository.save(history);
-//            return ResponseEntity.ok("History created successfully");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create history: " + e.getMessage());
-//        }
-//    }
-
-
-
-
-//    public ResponseEntity<String> createHistory(History history) {
-//        Account account = accountRepository.findById(history.getId_account()).orElse(null);
-//        Result result = resultRepository.findById(history.getId_Result()).orElse(null);
-//        if (account != null && result != null) {
-//            history.setAccount(account);
-//            history.setResult(result);
-//            history.setDateTime(LocalDateTime.now());
-//
-//            List<Choice> likeChoices = new ArrayList<>();
-//            List<Choice> disChoices = new ArrayList<>();
-//
-//
-//            List<Long> likeChoiceIds = new ArrayList<>();
-//            for (Choice choice : history.getLikeChoices()) {
-//                likeChoiceIds.add((long) choice.getId());
-//            }
-//            history.setLikeChoiceIds(likeChoiceIds);
-//
-//            List<Long> disChoiceIds = new ArrayList<>();
-//            for (Choice choice : history.getDisChoices()) {
-//                disChoiceIds.add((long) choice.getId());
-//            }
-//            history.setDisChoiceIds(disChoiceIds);
-//
-//
-//            history.setLikeChoices(likeChoices);
-//            history.setDisChoices(disChoices);
-//
-//            History savedHistory = historyRepository.save(history);
-
-
-//    public List<HistoryModel> findAllHistory() {
-//        List<History> histories = this.historyRepository.findAll();
-//        List<HistoryModel> models = new ArrayList<>();
-//        for (History history : histories) {
-//            HistoryModel model = new HistoryModel();
-//
-//            // Convert choice IDs to ArrayLists of Choice objects
-//            List<Integer> likechoice = new ArrayList<>();
-//            for (Choice choiceId : history.getLikeChoices()) {
-//                int choice = choiceService.findChoiceById(choiceId);
-//                likechoice.add(choice);
-//            }
-//            List<Integer> dischoice = new ArrayList<>();
-//            for (Choice choiceId : history.getDisChoices()) {
-//                int choice = choiceService.findChoiceById(choiceId);
-//                dischoice.add(choice);
-//            }
-//
-//            // Set fields of HistoryModel
-//            model.setId(history.getId());
-//            model.setDateTime(history.getDateTime());
-//            model.setLikechoices((ArrayList<Integer>) likechoice);
-//            model.setDischoice((ArrayList<Integer>) dischoice);
-//            model.setAccount(history.getAccount());
-//            model.setResult(history.getResult());
-//
-//            models.add(model);
-//        }
-//
-//        return models;
-//    }
-//
-//    public ResponseEntity<String> createHistory(@RequestBody History history) {
-//        try {
-//            historyRepository.save(history);
-//            System.out.println("History created successfully");
-//            return new ResponseEntity<>("History created successfully", HttpStatus.OK);
-//        } catch (Exception e) {
-//            System.out.println("Failed to create history: " + e.getMessage());
-//            return new ResponseEntity<>("Failed to create history", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
 //    } else{
 //
@@ -172,35 +89,84 @@ public class HistoryService {
 
 
 //    _________________________________ดึงข้อมูลประวัติการใช้งานทั้งหมด____________________________________
-    public List<History> getAllHistory() {
 
-        return historyRepository.findAll();
+    public List<HistoryModel> findAllHistory() {
+        List<History> dataList = this.historyRepository.findAll();
+        List<HistoryModel> result = new ArrayList<>();
+        for (History d : dataList) {
+            HistoryModel x = new HistoryModel();
+            x.setDateTime(d.getDateTime());
+            x.setAccountId(d.getAccount().getId());
+            x.setResultId(d.getResult().getId());
+            x.setLikeChoices(d.getLikeChoices().stream().map(Choice::getId).collect(Collectors.toList()));
+            x.setDisChoices(d.getDisChoices().stream().map(Choice::getId).collect(Collectors.toList()));
+            x.setDeleted(d.isDeleted());
+            x.setAccount(d.getAccount());
+            x.setResult(d.getResult());
+            result.add(x);
+        }
+        return result;
     }
 
 
-    public History createHistory(History history) {
-        return historyRepository.save(history);
-    }
 
-//  _____________________________________________________________________________________________________________________
+
+
+//    public List<History> getAllHistory() {
 //
-////    ________________________________ดึงข้อมูลประวัติการใช้งานตาม id_____________________________________________________________
+//        return historyRepository.findAll();
+//    }
+//
+//
+//    public History createHistory(History history) {
+//
+//        return historyRepository.save(history);
+//    }
+
+//  ____________________________________________________________________________________________________________________
+
+//__________________________________________   PUT history      ________________________________________________________
+
+
+//    public History updateHistory(Long id, HistoryModel model) {
+//        Optional<History> optionalHistory = historyRepository.findById(id);
+//        if (optionalHistory.isPresent()) {
+//            History history = optionalHistory.get();
+//            history.setDateTime(model.getDateTime());
+//            history.setAccount(model.getAccount());
+//            history.setResult(model.getResult());
+//            history.setLikeChoices(model.getLikeChoices());
+//            history.setDisChoice(model.getDisChoice());
+//            return historyRepository.save(history);
+//        } else {
+//            return null;
+//        }
+//    }
+
+
+
+//    ____________________________________________________________________________________________________________________
+
+//
+////    ________________________________ดึงข้อมูลประวัติการใช้งานตาม id_________________________________________________________
 //
 //    public History getHistoryById(Long id) {
 //    return historyRepository.findById(id).orElse(null);
 //}
 
-    public History getHistoryById(Long id) {
-        Optional<History> optionalHistory = historyRepository.findById(id);
-        if (optionalHistory.isPresent()) {
-            History history = optionalHistory.get();
-            if (history.isDeleted()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This ID has been deleted.");
-            }
-            return history;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This ID does not exist.");
-        }
+    public HistoryModel getHistoryById(Long id) throws ResourceNotFoundException {
+        History history = historyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("History not found for this id :: " + id));
+        HistoryModel historyModel = new HistoryModel();
+        historyModel.setDateTime(history.getDateTime());
+        historyModel.setAccountId(history.getAccount().getId());
+        historyModel.setResultId(history.getResult().getId());
+        historyModel.setLikeChoices(history.getLikeChoices().stream().map(Choice::getId).collect(Collectors.toList()));
+        historyModel.setDisChoices(history.getDisChoices().stream().map(Choice::getId).collect(Collectors.toList()));
+        historyModel.setDeleted(history.isDeleted());
+        historyModel.setAccount(history.getAccount());
+        historyModel.setResult(history.getResult());
+        return historyModel;
     }
 ////________________________________________________________________________________________________________________________
 //
@@ -222,6 +188,7 @@ public class HistoryService {
             return new ResponseEntity<>("History not found.", HttpStatus.NOT_FOUND);
         }
     }
+
 
 //    ____________________________________________________________________________________________________________________
 }

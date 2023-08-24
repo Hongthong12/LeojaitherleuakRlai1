@@ -31,4 +31,7 @@ public class Result {
     @OneToMany(mappedBy = "result")
     @JsonIgnore
     private List<History> histories;
+
+
+
 }

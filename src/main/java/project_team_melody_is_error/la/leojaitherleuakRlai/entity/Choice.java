@@ -82,8 +82,9 @@ public class Choice {
         this.nameEng = nameEng;
     }
 
-    public Integer getResultId() {
-        return getResultId();
+    public Long getResultId() {
+
+        return result.getId();
     }
 
     public void setResult(Result result) {

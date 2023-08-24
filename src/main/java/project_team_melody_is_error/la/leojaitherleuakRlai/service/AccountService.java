@@ -2,11 +2,14 @@ package project_team_melody_is_error.la.leojaitherleuakRlai.service;
 
 import aj.org.objectweb.asm.ConstantDynamic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import project_team_melody_is_error.la.leojaitherleuakRlai.entity.Account;
 import project_team_melody_is_error.la.leojaitherleuakRlai.model.AccountModel;
 import project_team_melody_is_error.la.leojaitherleuakRlai.repository.AccountRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -27,104 +30,105 @@ public class AccountService {
         this.accounts = new ArrayList<>();
     }
 
-    public String addAccount(AccountModel account) {
-        // ทำความสะอาดข้อมูล
-        // ตรวจสอบความถูกต้องของข้อมูล
-        // ใช้ access token ของ google ในการดึงข้อมูลผู้ใช้จาก google api
-//        GoogleCredential credential = new GoogleCredential().setAccessToken(account.getAccessToken());
-//        Plus plus = new Plus.Builder(new NetHttpTransport(), new JacksonFactory(), credential)
-//                .setApplicationName("Google-PlusSample/1.0").build();
-//        Person profile = plus.people().get("me").execute();
+//    public String addAccount(AccountModel account) {
+//// บันทึกบัญชีใหม่เข้าสู่ระบบด้วยเมธอดที่เหมาะสมในคลาส Repository หรือ Data Access Object (DAO)
+//        Account newAccount = new Account();
+//        newAccount.setId(account.getId());
+//        newAccount.setEmail(account.getEmail());
+//        newAccount.setFirstname(account.getFirstname());
+//        newAccount.setLastname(account.getLastname());
+//        newAccount.setBirthday(account.getBirthday());
+//        newAccount.setDatetime(account.getDatetime());
+//        accountRepository.save(newAccount);
+//        if (newAccount.getId() != null) {
+//            return "success";
+//        } else {
+//            return "unsuccess";
+//        }
+//    }
 
-        // กำหนดค่าให้กับ AccountModel
 
-
-//        account.setEmail(profile.getEmail().get(0).getValue());
-//        account.setFirstname(profile.getName().getGivenName());
-//        account.setLastname(profile.getName().getFamilyName());
-//
-//
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//        Date date = formatter.parse(profile.getBirthday());
-//        LocalDate birthday = new java.sql.Date(date.getTime()).toLocalDate();
-//        account.setBirthday(birthday);
-//
-//        account.setDatetime(LocalDateTime.now());
-//        account.setAccessToken(account.getAccessToken());
-//        account.setRefreshToken(account.getRefreshToken());
-//        account.setExpiresAt(account.getExpiresAt());
-
-        // บันทึกบัญชีใหม่เข้าสู่ระบบด้วยเมธอดที่เหมาะสมในคลาส Repository หรือ Data Access Object (DAO)
-        Account newAccount = new Account();
-        newAccount.setId(account.getId());
-        newAccount.setEmail(account.getEmail());
-        newAccount.setFirstname(account.getFirstname());
-        newAccount.setLastname(account.getLastname());
-        newAccount.setBirthday(account.getBirthday());
-        newAccount.setDatetime(account.getDatetime());
-        accountRepository.save(newAccount);
-        if (newAccount.getId() != null) {
-            return "success";
+//_________________________________________CREATE ACCOUNT__________________________________________________________
+    public ResponseEntity<?> getGmailEntity(AccountModel accountModel) {
+        Account gmail = this.accountRepository.findByEmail(accountModel.getEmail());
+        if(gmail == null){
+            Account gm = new Account();
+            gm.setId(accountModel.getId());
+            gm.setEmail(accountModel.getEmail());
+            gm.setFirstname(accountModel.getFirstname());
+            gm.setLastname(accountModel.getLastname());
+            gm.setBirthday(accountModel.getBirthday());
+            gm.setImageUrl(accountModel.getImageUrl());
+            gm.setDatetime(LocalDateTime.now());
+            this.accountRepository.save(gm);
+            return  ResponseEntity.status(HttpStatus.OK).body("Login success saved");
         } else {
-            return "unsuccess";
+            return ResponseEntity.status(HttpStatus.OK).body("Login successful");
         }
     }
 
-    public void removeAccount(AccountModel account) {
-        accounts.remove(account);
-    }
+//______________________________________________________________________________________________________________________
 
-    public List<AccountModel> getAllAccounts() {
-        return accounts;
-    }
 
-    public AccountModel getAccountById(Long id) {
-        for (AccountModel account : accounts) {
-            if (account.getId().equals(id)) {
-                return account;
-            }
-        }
-        return null;
-    }
+//_____________________________________________GET ALL ACCOUNT__________________________________________________________
 
-    public List<AccountModel> getAccountsByEmail(String email) {
+    public List<AccountModel> findAllAccount() {
+        List<Account> dataList = this.accountRepository.findAll();
         List<AccountModel> result = new ArrayList<>();
-        for (AccountModel account : accounts) {
-            if (account.getEmail().equals(email)) {
-                result.add(account);
-            }
+        for (Account account : dataList) {
+            AccountModel model = new AccountModel();
+            model.setId(account.getId());
+            model.setEmail(account.getEmail());
+            model.setFirstname(account.getFirstname());
+            model.setLastname(account.getLastname());
+            model.setBirthday(account.getBirthday());
+            model.setDatetime(account.getDatetime());
+            model.setImageUrl(account.getImageUrl());
+            result.add(model);
         }
         return result;
     }
 
-    public void updateAccount(AccountModel account) {
-        Account existingAccount = accountRepository.findById(account.getId()).orElse(null);
-        if (existingAccount != null) {
-            existingAccount.setEmail(account.getEmail());
-            existingAccount.setFirstname(account.getFirstname());
-            existingAccount.setLastname(account.getLastname());
-            existingAccount.setBirthday(account.getBirthday());
-            existingAccount.setDatetime(account.getDatetime());
-            accountRepository.save(existingAccount);
+//______________________________________________________________________________________________________________________
+
+
+//_____________________________________________GET ONE ID ACCOUNT__________________________________________________________
+
+    public AccountModel findAccountById(Long id) {
+        Optional<Account> optionalAccount = accountRepository.findById(id);
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            AccountModel model = new AccountModel();
+            model.setId(account.getId());
+            model.setEmail(account.getEmail());
+            model.setFirstname(account.getFirstname());
+            model.setLastname(account.getLastname());
+            model.setBirthday(account.getBirthday());
+            model.setDatetime(account.getDatetime());
+            model.setImageUrl(account.getImageUrl());
+            return model;
+        } else {
+            throw new RuntimeException("Account not found with id " + id);
         }
     }
 
-    public boolean isAccountExists(AccountModel account) {
-        Account existingAccount = accountRepository.findByEmail(account.getEmail());
-        if (existingAccount != null) {
-            return true;
-        }
-        return false;
-    }
+//______________________________________________________________________________________________________________________
 
-    public boolean isAccountExistsByEmail(String email) {
-        Account existingAccount = accountRepository.findByEmail(email);
-        if (existingAccount != null) {
-            return true;
-        }
-        return false;
-    }
-        // เพิ่มเมธอดอื่น ๆ เช่น อัพเดทข้อมูลบัญชี หรือตรวจสอบการเข้าสู่ระบบ ตามความต้องการของคุณ
+
+
+//_____________________________________________GET ALL ACCOUNT__________________________________________________________
+
+
+
+//______________________________________________________________________________________________________________________
+
+
+
+//_____________________________________________GET ALL ACCOUNT__________________________________________________________
+
+
+
+//______________________________________________________________________________________________________________________
 
 
 }
